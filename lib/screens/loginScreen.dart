@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:login_ui/screens/signupScreen.dart';
 
 class signInPage extends StatefulWidget {
   const signInPage({Key? key}) : super(key: key);
@@ -71,7 +72,8 @@ class _signInPageState extends State<signInPage> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    print("hi");
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => signUpPage()));
                   },
                   child: Text(
                     "Forgot password?",
@@ -86,12 +88,18 @@ class _signInPageState extends State<signInPage> {
             width: 400,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
+              children: [
                 Text("Don't have an account?"),
-                Text(
-                  "Signup here",
-                  style: TextStyle(color: Colors.green),
-                )
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => signUpPage()));
+                  },
+                  child: const Text(
+                    "Signup here",
+                    style: TextStyle(color: Colors.green),
+                  ),
+                ),
               ],
             ),
           )
