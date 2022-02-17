@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:login_ui/screens/signupScreen.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class signInPage extends StatefulWidget {
   const signInPage({Key? key}) : super(key: key);
@@ -9,6 +12,10 @@ class signInPage extends StatefulWidget {
 }
 
 class _signInPageState extends State<signInPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,6 +24,7 @@ class _signInPageState extends State<signInPage> {
         // crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Form(
+            key: _formKey,
             child: Column(
               children: [
                 Row(
@@ -34,8 +42,9 @@ class _signInPageState extends State<signInPage> {
                 ),
                 Container(
                   margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                  width: 400,
+                  width: 300,
                   child: TextFormField(
+                    controller: _emailController,
                     decoration: const InputDecoration(
                       label: Text("Enter Email"),
                       prefixIcon: Icon(Icons.mail),
@@ -44,8 +53,14 @@ class _signInPageState extends State<signInPage> {
                 ),
                 Container(
                   margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                  width: 400,
+                  width: 300,
                   child: TextFormField(
+                    validator: (value) {
+                      if (value!.isEmpty || value.length < 6) {
+                        return "incorrect format";
+                      }
+                    },
+                    controller: _passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(
                       focusColor: Colors.lightGreenAccent,
@@ -57,7 +72,7 @@ class _signInPageState extends State<signInPage> {
             ),
           ),
           Container(
-            width: 400,
+            width: 300,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -83,9 +98,19 @@ class _signInPageState extends State<signInPage> {
               ],
             ),
           ),
-          ElevatedButton(onPressed: () {}, child: const Text("LOGIN")),
           Container(
-            width: 400,
+            margin: EdgeInsets.fromLTRB(0, 20, 0, 20),
+            width: 300,
+            child: ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    register();
+                  }
+                },
+                child: const Text("LOGIN")),
+          ),
+          Container(
+            width: 300,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -106,5 +131,10 @@ class _signInPageState extends State<signInPage> {
         ],
       ),
     );
+  }
+
+  void register() async {
+    final UserCredential user = await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text, password: _passwordController.text);
   }
 }
