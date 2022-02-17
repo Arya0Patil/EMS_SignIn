@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:login_ui/screens/signupScreen.dart';
 
-final FirebaseAuth _auth = FirebaseAuth.instance;
+final FirebaseAuth auth = FirebaseAuth.instance;
 
 class signInPage extends StatefulWidget {
   const signInPage({Key? key}) : super(key: key);
@@ -45,6 +45,12 @@ class _signInPageState extends State<signInPage> {
                   width: 300,
                   child: TextFormField(
                     controller: _emailController,
+                    validator: (value) {
+                      RegExp regex = new RegExp(r'^.{3,}$');
+                      if (value!.isEmpty || !regex.hasMatch(value)) {
+                        return "incorrect format";
+                      }
+                    },
                     decoration: const InputDecoration(
                       label: Text("Enter Email"),
                       prefixIcon: Icon(Icons.mail),
@@ -56,7 +62,8 @@ class _signInPageState extends State<signInPage> {
                   width: 300,
                   child: TextFormField(
                     validator: (value) {
-                      if (value!.isEmpty || value.length < 6) {
+                      RegExp regex = new RegExp(r'^.{3,}$');
+                      if (value!.isEmpty || !regex.hasMatch(value)) {
                         return "incorrect format";
                       }
                     },
@@ -103,9 +110,9 @@ class _signInPageState extends State<signInPage> {
             width: 300,
             child: ElevatedButton(
                 onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    register();
-                  }
+                  // if (_formKey.currentState!.validate()) {
+                  //   register();
+                  // }
                 },
                 child: const Text("LOGIN")),
           ),
@@ -131,10 +138,5 @@ class _signInPageState extends State<signInPage> {
         ],
       ),
     );
-  }
-
-  void register() async {
-    final UserCredential user = await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text, password: _passwordController.text);
   }
 }

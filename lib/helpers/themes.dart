@@ -12,7 +12,7 @@ ThemeData themeData(BuildContext context) {
       textTheme: GoogleFonts.poppinsTextTheme().copyWith(
           headline1: GoogleFonts.poppins(
               color: kPrimaryColor,
-              fontSize: 12,
+              fontSize: 25,
               fontWeight: FontWeight.bold,
               fontStyle: FontStyle.normal),
           bodyText1: GoogleFonts.bubblegumSans(

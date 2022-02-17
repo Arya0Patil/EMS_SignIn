@@ -1,9 +1,14 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:login_ui/models/userModels.dart';
+import 'homeScreen.dart';
 
 class signUpPage extends StatefulWidget {
   const signUpPage({Key? key}) : super(key: key);
@@ -13,6 +18,15 @@ class signUpPage extends StatefulWidget {
 }
 
 class _signUpPageState extends State<signUpPage> {
+  String? errorMsg;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _confirmController = TextEditingController();
+
   final List<String> _genderItem = <String>["Male", "Female"];
   String? _selectedGender;
   bool _obscureText1 = true;
@@ -69,6 +83,8 @@ class _signUpPageState extends State<signUpPage> {
                   margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   width: 300,
                   child: TextFormField(
+                    controller: _nameController,
+                    onSaved: (value) {},
                     decoration: const InputDecoration(
                       label: Text("Enter Name"),
                       prefixIcon: Icon(
@@ -131,7 +147,12 @@ class _signUpPageState extends State<signUpPage> {
                   ),
                 ),
 
-                ElevatedButton(onPressed: () {}, child: Text('Sign Up'))
+                ElevatedButton(
+                    onPressed: () {
+                      signUpUser();
+                      Get.to(() => homePage());
+                    },
+                    child: Text('Sign Up'))
               ],
             ),
           ),
@@ -140,13 +161,60 @@ class _signUpPageState extends State<signUpPage> {
     );
   }
 
+  toFirestore() async {
+    FirebaseFirestore firebasefirestore = FirebaseFirestore.instance;
+    User? user = _auth.currentUser;
+
+    UserModel userModel = UserModel();
+    userModel.name = _nameController.text;
+    userModel.email = _emailController.text;
+    userModel.userId = user!.uid;
+    userModel.gender = _selectedGender;
+    userModel.imageUrl = imageUrl;
+
+    firebasefirestore
+        .collection("userProfile")
+        .doc(user.uid)
+        .set(userModel.toMap());
+  }
+
+  void register() async {
+    final UserCredential user = await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text, password: _passwordController.text);
+  }
+
+  void signUpUser() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        await _auth
+            .createUserWithEmailAndPassword(
+                email: _emailController.text,
+                password: _passwordController.text)
+            .then((value) => {toFirestore()})
+            .catchError((e) {
+          print(e.message);
+        });
+      } on FirebaseException catch (e) {
+        switch (e.code) {
+          case "ivalid-email":
+            errorMsg = "email invalid";
+
+            break;
+          default:
+        }
+      }
+    }
+  }
+
   showUserImageFilePicker(FileType filetype) async {
     final picker = ImagePicker();
     File _imageFile;
     final pickFile = await picker.getImage(source: ImageSource.gallery);
     _imageFile = File(pickFile!.path);
-    UploadTask uploadTask =
-        firebaseStorage.ref('userProfileImage').putFile(_imageFile);
+    UploadTask uploadTask = firebaseStorage
+        .ref('userProfileImage')
+        .child(DateTime.now().toString())
+        .putFile(_imageFile);
     var pictureUrl = await (await uploadTask).ref.getDownloadURL();
     setState(() {
       imageUrl = pictureUrl.toString();
