@@ -20,7 +20,6 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        buttonColor: Colors.green[300],
         primarySwatch: Colors.blue,
       ),
       home: const splashPage(),

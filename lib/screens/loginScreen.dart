@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:login_ui/screens/homeScreen.dart';
 import 'package:login_ui/screens/signupScreen.dart';
 
 final FirebaseAuth auth = FirebaseAuth.instance;
@@ -110,6 +111,7 @@ class _signInPageState extends State<signInPage> {
             width: 300,
             child: ElevatedButton(
                 onPressed: () {
+                  signInUser();
                   // if (_formKey.currentState!.validate()) {
                   //   register();
                   // }
@@ -138,5 +140,13 @@ class _signInPageState extends State<signInPage> {
         ],
       ),
     );
+  }
+
+  void signInUser() async {
+    await auth.signInWithEmailAndPassword(
+        email: _emailController.text, password: _passwordController.text);
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: ((context) => homePage())));
   }
 }
